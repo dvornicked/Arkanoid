@@ -1,6 +1,8 @@
 class Game {
     constructor() {
         this.ctx = null
+        this.platform = null
+        this.ball = null
         this.sprites = {
             background: null,
             ball: null,
@@ -37,8 +39,8 @@ class Game {
 
     render() {
         this.ctx.drawImage(this.sprites.background, 0, 0)
-        this.ctx.drawImage(this.sprites.ball, 0, 0)
-        this.ctx.drawImage(this.sprites.platform, 0, 0)
+        this.ctx.drawImage(this.sprites.ball, 0, 0, 20, 20, this.ball.x, this.ball.y, this.ball.width, this.ball.height)
+        this.ctx.drawImage(this.sprites.platform, this.platform.x, this.platform.y)
     }
     start() {
         this.init()
@@ -47,7 +49,20 @@ class Game {
         })
     }
 }
+
 const game = new Game()
+
+game.ball = {
+    x: 320,
+    y: 280,
+    width: 20,
+    height: 20
+}
+
+game.platform = {
+    x: 280,
+    y: 300
+}
 
 window.addEventListener('load', () => {
     game.start()
