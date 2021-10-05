@@ -22,14 +22,12 @@ class Game {
 
     setEvents() {
         window.addEventListener('keydown', e => {
-            if (e.key === 'ArrowRight') {
-                this.platform.dx = this.platform.velocity
-            } else if (e.key === 'ArrowLeft') {
-                this.platform.dx = -this.platform.velocity
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                this.platform.start(e.key)
             }
         })
         window.addEventListener('keyup', e => {
-            this.platform.dx = 0
+            this.platform.stop()
         })
     }
 
@@ -103,9 +101,20 @@ game.platform = {
     dx: 0,
     x: 280,
     y: 300,
+    start(direction) {
+        if (direction === 'ArrowLeft') {
+            this.dx = -this.velocity
+        } else if (direction === 'ArrowRight') {
+            this.dx = this.velocity
+        }
+    },
+    stop() {
+        this.dx = 0
+    },
     move() {
         if (this.dx) {
             this.x += this.dx
+            game.ball.x += this.dx
         }
     }
 }
