@@ -74,6 +74,7 @@ class Game {
     }
 
     render() {
+        this.ctx.clearRect(0, 0, 640, 360)
         this.ctx.drawImage(this.sprites.background, 0, 0)
         this.ctx.drawImage(this.sprites.ball, 0, 0, 20, 20, this.ball.x, this.ball.y, this.ball.width, this.ball.height)
         this.ctx.drawImage(this.sprites.platform, this.platform.x, this.platform.y)
@@ -88,12 +89,16 @@ class Game {
             this.run()
         })
     }
+    random(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min)
+    }
 }
 
 const game = new Game()
 
 game.ball = {
     velocity: 3,
+    dx: 0,
     dy: 0,
     x: 320,
     y: 280,
@@ -101,10 +106,14 @@ game.ball = {
     height: 20,
     start() {
         this.dy = -this.velocity
+        this.dx = game.random(-this.velocity, this.velocity)
     },
     move() {
         if (this.dy) {
             this.y += this.dy
+        }
+        if (this.dx) {
+            this.x += this.dx
         }
     }
 }
