@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --mode production",
     "dev": "webpack --mode development",
-    "start": "webpack serve --mode development --hot --open"
+    "start": "webpack serve --mode development --hot --open",
+    "commit": "npm run build && git add . && git commit -m"
   },
   "author": "",
   "license": "ISC",
