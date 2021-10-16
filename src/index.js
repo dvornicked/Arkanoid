@@ -8,6 +8,8 @@ class Game {
         this.cols = 8
         this.width = 640
         this.height = 360
+        this.running = true
+        this.score = 0
         this.sprites = {
             background: null,
             ball: null,
@@ -74,14 +76,29 @@ class Game {
         this.platform.collideWorldBounds()
     }
 
+    addScore() {
+        ++this.score
+
+        if (this.score >= this.blocks.length) {
+            this.end("You won")
+        }
+    }
+
     collideBlocks() {
         for (let block of this.blocks) {
-            if (block.active) {
+            if (block.active && this.ball.collide(block)) {
                 if (this.ball.collide(block)) {
                     this.ball.bumpBlock(block)
+                    this.addScore()
                 }
             }
         }
+    }
+
+    end(result) {
+        game.running = false
+        alert(result)
+        window.location.reload()
     }
 
     collidePlatform() {
@@ -92,9 +109,11 @@ class Game {
 
     run() {
         window.requestAnimationFrame(() => {
-            this.update()
-            this.render()
-            this.run()
+            if (this.running) {
+                this.update()
+                this.render()
+                this.run()
+            }
         })
     }
 
@@ -173,7 +192,7 @@ game.ball = {
             this.y = 0
             this.dy = this.velocity
         } else if (ballBottom > worldBottom) {
-            console.log("GGWP")
+            game.end("You lost")
         }
     },
     move() {
@@ -255,7 +274,6 @@ game.platform = {
         } else if (platformRight > worldRight) {
             if (this.ball) {
                 this.ball.x = worldRight - (this.width + this.ball.width) / 2
-
             }
             this.x = worldRight - this.width
         }
