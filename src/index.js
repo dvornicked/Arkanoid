@@ -143,6 +143,9 @@ class Game {
         this.ctx.drawImage(this.sprites.ball, 0, 0, 20, 20, this.ball.x, this.ball.y, this.ball.width, this.ball.height)
         this.ctx.drawImage(this.sprites.platform, this.platform.x, this.platform.y)
         this.renderBlocks()
+        this.ctx.fillStyle = '#fff'
+        this.ctx.font = '20px Arial'
+        this.ctx.fillText(`Score: ${this.score}`, 10, 20)
     }
 
     renderBlocks() {
