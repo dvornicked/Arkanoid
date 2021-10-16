@@ -6,6 +6,8 @@ class Game {
         this.blocks = []
         this.rows = 4
         this.cols = 8
+        this.width = 640
+        this.height = 360
         this.sprites = {
             background: null,
             ball: null,
@@ -68,6 +70,7 @@ class Game {
         this.ball.move()
         this.collideBlocks()
         this.collidePlatform()
+        this.ball.collideWorldBounds()
     }
 
     collideBlocks() {
@@ -85,6 +88,7 @@ class Game {
             this.ball.bumpPlatform(this.platform)
         }
     }
+
     run() {
         window.requestAnimationFrame(() => {
             this.update()
@@ -125,7 +129,7 @@ class Game {
 const game = new Game()
 
 game.ball = {
-    velocity: 6,
+    velocity: 3,
     dx: 0,
     dy: 0,
     x: 320,
@@ -143,6 +147,33 @@ game.ball = {
             return true
         }
         return false
+    },
+    collideWorldBounds() {
+        let x = this.x + this.dx
+        let y = this.y + this.dy
+
+        let ballLeft = x
+        let ballRight = ballLeft + this.width
+        let ballTop = y
+        let ballBottom = ballTop + this.height
+
+        let worldLeft = 0
+        let worldRight = game.width
+        let worldTop = 0
+        let worldBottom = game.height
+
+        if (ballLeft < worldLeft) {
+            this.x = 0
+            this.dx = this.velocity
+        } else if (ballRight > worldRight) {
+            this.x = game.width - this.width
+            this.dx = -this.velocity
+        } else if (ballTop < worldTop) {
+            this.y = 0
+            this.dy = this.velocity
+        } else if (ballBottom > worldBottom) {
+            console.log("GGWP")
+        }
     },
     move() {
         if (this.dy) {
