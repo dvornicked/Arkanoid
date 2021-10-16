@@ -53,6 +53,7 @@ class Game {
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
                 this.blocks.push({
+                    active: true,
                     width: 60,
                     height: 20,
                     x: 64 * col + 65,
@@ -71,8 +72,10 @@ class Game {
 
     collideBlocks() {
         for (let block of this.blocks) {
-            if (this.ball.collide(block)) {
-                this.ball.bumpBlock(block)
+            if (block.active) {
+                if (this.ball.collide(block)) {
+                    this.ball.bumpBlock(block)
+                }
             }
         }
     }
@@ -95,10 +98,17 @@ class Game {
         this.ctx.drawImage(this.sprites.background, 0, 0)
         this.ctx.drawImage(this.sprites.ball, 0, 0, 20, 20, this.ball.x, this.ball.y, this.ball.width, this.ball.height)
         this.ctx.drawImage(this.sprites.platform, this.platform.x, this.platform.y)
+        this.renderBlocks()
+    }
+
+    renderBlocks() {
         for (let block of this.blocks) {
-            this.ctx.drawImage(this.sprites.block, block.x, block.y)
+            if (block.active)  {
+                this.ctx.drawImage(this.sprites.block, block.x, block.y)
+            }
         }
     }
+
     start() {
         this.init()
         this.preload(() => {
@@ -106,6 +116,7 @@ class Game {
             this.run()
         })
     }
+
     random(min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min)
     }
@@ -143,6 +154,7 @@ game.ball = {
     },
     bumpBlock(block) {
         this.dy = -this.dy
+        block.active = false
     },
     bumpPlatform(platform) {
         this.dy = -this.dy
