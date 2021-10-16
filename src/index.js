@@ -71,6 +71,7 @@ class Game {
         this.collideBlocks()
         this.collidePlatform()
         this.ball.collideWorldBounds()
+        this.platform.collideWorldBounds()
     }
 
     collideBlocks() {
@@ -188,9 +189,14 @@ game.ball = {
         block.active = false
     },
     bumpPlatform(platform) {
-        this.dy = -this.dy
-        let touchX = this.x + this.width / 2
-        this.dx = this.velocity * platform.getTouchOffset(touchX)
+        if (platform.dx) {
+            this.x +=platform.dx
+        }
+        if (this.dy > 0) {
+            this.dy = -this.dy
+            let touchX = this.x + this.width / 2
+            this.dx = this.velocity * platform.getTouchOffset(touchX)
+        }
     }
 }
 
@@ -231,6 +237,28 @@ game.platform = {
         let offset = this.width - diff
         let result = 2 * offset / this.width
         return result - 1
+    },
+    collideWorldBounds() {
+        let x = this.x + this.dx
+
+        let platformLeft = x
+        let platformRight = platformLeft + this.width
+
+        let worldLeft = 0
+        let worldRight = game.width
+
+        if (platformLeft < worldLeft) {
+            if (this.ball) {
+                this.ball.x = 40
+            }
+            this.x = 0
+        } else if (platformRight > worldRight) {
+            if (this.ball) {
+                this.ball.x = worldRight - (this.width + this.ball.width) / 2
+
+            }
+            this.x = worldRight - this.width
+        }
     }
 }
 
