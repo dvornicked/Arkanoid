@@ -6,8 +6,20 @@ class Game {
         this.blocks = []
         this.rows = 4
         this.cols = 8
-        this.width = 640
-        this.height = 360
+        this.width = 0
+        this.height = 0
+        this.offsetX = 0
+        this.offsetY = 0
+        this.dimensions = {
+            max: {
+                width: 640,
+                height: 360
+            },
+            min: {
+                width: 640,
+                height: 320
+            }
+        }
         this.running = true
         this.score = 0
         this.sprites = {
@@ -22,9 +34,54 @@ class Game {
     }
 
     init () {
-        // Init
-        this.ctx = document.getElementById('myCanvas').getContext('2d')
+        this.canvas = document.getElementById('myCanvas')
+        this.ctx = this.canvas.getContext('2d')
+        this.initDimensions()
         this.setEvents()
+    }
+
+    initDimensions() {
+        let data = {
+            maxWidth: this.dimensions.max.width,
+            maxHeight: this.dimensions.max.height,
+            minWidth: this.dimensions.min.width,
+            minHeight: this.dimensions.min.height,
+            realWidth: window.innerWidth,
+            realHeight: window.innerHeight
+        }
+
+        if (data.realWidth / data.realHeight > data.maxWidth / data.maxHeight) {
+            this.fitWidth(data)
+        } else {
+            this.fitHeight(data)
+        }
+        console.log(this.width, this.height)
+
+        this.canvas.width = this.width
+        this.canvas.height = this.height
+        this.ball.initPosition()
+        this.platform.initPosition()
+        console.log(this.offsetX, this.offsetY)
+    }
+
+    fitWidth(data) {
+        this.height = Math.round(data.maxWidth * data.realHeight / data.realWidth)
+        this.height = Math.min(this.height, data.maxHeight)
+        this.height = Math.max(this.height, data.minHeight)
+        this.width = Math.round(data.realWidth * this.height / data.realHeight)
+        this.canvas.style.width = '100%'
+        this.offsetX = Math.round((this.width - data.maxWidth) / 2)
+        console.log('Width')
+    }
+
+    fitHeight(data) {
+        this.width = Math.round(data.realWidth * data.maxHeight / data.realHeight)
+        this.width = Math.min(this.width, data.maxWidth)
+        this.width = Math.max(this.width, data.minWidth)
+        this.height = Math.round(this.width * data.realHeight / data.realWidth)
+        this.canvas.style.height = '100%'
+        this.offsetY = Math.round((this.height - data.maxHeight) / 2)
+        console.log('Height')
     }
 
     setEvents() {
@@ -78,8 +135,8 @@ class Game {
                     active: true,
                     width: 60,
                     height: 20,
-                    x: 64 * col + 65,
-                    y: 23 * row + 35
+                    x: 64 * col + 65 + this.offsetX,
+                    y: 23 * row + 35 + this.offsetY
                 })
             }
         }
@@ -138,14 +195,14 @@ class Game {
     }
 
     render() {
-        this.ctx.clearRect(0, 0, 640, 360)
-        this.ctx.drawImage(this.sprites.background, 0, 0)
+        this.ctx.clearRect(0, 0, this.width, this.height)
+        this.ctx.drawImage(this.sprites.background, this.offsetX, this.offsetY)
         this.ctx.drawImage(this.sprites.ball, this.ball.frame * this.ball.width, 0, 20, 20, this.ball.x, this.ball.y, this.ball.width, this.ball.height)
         this.ctx.drawImage(this.sprites.platform, this.platform.x, this.platform.y)
         this.renderBlocks()
         this.ctx.fillStyle = '#fff'
         this.ctx.font = '20px Arial'
-        this.ctx.fillText(`Score: ${this.score}`, 10, 20)
+        this.ctx.fillText(`Score: ${this.score}`, 10 + this.offsetX, 20 + this.offsetY)
     }
 
     renderBlocks() {
@@ -180,6 +237,10 @@ game.ball = {
     y: 280,
     width: 20,
     height: 20,
+    initPosition() {
+        this.x += game.offsetX
+        this.y += game.offsetY
+    },
     start() {
         this.dy = -this.velocity
         this.dx = game.random(-this.velocity, this.velocity)
@@ -210,21 +271,21 @@ game.ball = {
         let ballTop = y
         let ballBottom = ballTop + this.height
 
-        let worldLeft = 0
-        let worldRight = game.width
-        let worldTop = 0
-        let worldBottom = game.height
+        let worldLeft = game.offsetX
+        let worldRight = game.width - game.offsetX
+        let worldTop = game.offsetY
+        let worldBottom = game.height - game.offsetY
 
         if (ballLeft < worldLeft) {
-            this.x = 0
+            this.x = worldLeft
             this.dx = this.velocity
             game.sounds.bump.play()
         } else if (ballRight > worldRight) {
-            this.x = game.width - this.width
+            this.x = worldRight - this.width
             this.dx = -this.velocity
             game.sounds.bump.play()
         } else if (ballTop < worldTop) {
-            this.y = 0
+            this.y = worldTop
             this.dy = this.velocity
             game.sounds.bump.play()
         } else if (ballBottom > worldBottom) {
@@ -263,6 +324,10 @@ game.platform = {
     width: 100,
     height: 14,
     ball: game.ball,
+    initPosition() {
+        this.x += game.offsetX
+        this.y += game.offsetY
+    },
     fire() {
         if (this.ball) {
             this.ball.start()
@@ -299,14 +364,14 @@ game.platform = {
         let platformLeft = x
         let platformRight = platformLeft + this.width
 
-        let worldLeft = 0
-        let worldRight = game.width
+        let worldLeft = game.offsetX
+        let worldRight = game.width - game.offsetX
 
         if (platformLeft < worldLeft) {
             if (this.ball) {
-                this.ball.x = 40
+                this.ball.x = 40 + worldLeft
             }
-            this.x = 0
+            this.x = worldLeft
         } else if (platformRight > worldRight) {
             if (this.ball) {
                 this.ball.x = worldRight - (this.width + this.ball.width) / 2
